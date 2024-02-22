@@ -2115,7 +2115,8 @@ function ClientUpdatePositionWithInput() {
 		AdjustDistance = VSize(IGPlus_AdjustLocationOffset);
 		if ((AdjustDistance < 50) &&
 			FastTrace(Location,IGPlus_PreAdjustLocation) &&
-			IGPlus_AdjustLocationOverride == false
+			IGPlus_AdjustLocationOverride == false &&
+			IsInState('Dying') == false
 		) {
 			// Undo adjustment and re-enact smoothly
 			PostAdjustLocation = Location;
@@ -2124,7 +2125,9 @@ function ClientUpdatePositionWithInput() {
 				IGPlus_AdjustLocationOffset = (PostAdjustLocation - Location);
 			}
 		} else {
-			NetStatsElem.bInstantRelocation = true;
+			if (AdjustDistance >= 1.0) {
+				NetStatsElem.bInstantRelocation = true;
+			}
 			IGPlus_AdjustLocationOffset = vect(0,0,0);
 		}
 	}
@@ -3282,12 +3285,7 @@ function IGPlus_AcknowledgeInput() {
 	if (IGPlus_WantCAP == false)
 		return;
 
-	if (IsInState('Dying') == false && IGPlus_SavedInputChain.Newest.bLive) {
-		// always request CAP while alive
-		// when dead you dont want players to still be receiving CAPs,
-		// that screws up respawning
-		IGPlus_SendCAP();
-	}
+	IGPlus_SendCAP();
 	IGPlus_WantCAP = false;
 }
 
@@ -3862,9 +3860,10 @@ function PlayBackInput(IGPlus_SavedInput Old, IGPlus_SavedInput I) {
 
 		if (I.bWalk) bRun = 1; else bRun = 0;
 		if (I.bDuck) bDuck = 1; else bDuck = 0;
+		
+		bPressedJump = I.bJump && (I.bJump != Old.bJump);
+		bPressedDodge = I.bDodg && (I.bDodg != Old.bDodg);
 	}
-	bPressedJump = I.bJump && (I.bJump != Old.bJump);
-	bPressedDodge = I.bDodg && (I.bDodg != Old.bDodg);
 
 	if (RemoteRole == ROLE_AutonomousProxy) {
 		if (zzUTPure.Settings.bEnablePingCompensatedSpawn) {
