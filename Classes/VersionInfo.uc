@@ -5,8 +5,8 @@ var string PackageVersion;
 var string PackageName;
 
 defaultproperties {
-    PackageBaseName=InstaGibPlus
+    PackageBaseName=IG-Plus-Update-23-02-24
     PackageVersion=dev
-    PackageName=InstaGibPlus
+    PackageName=IG-Plus-Update-23-02-24
 }
 
